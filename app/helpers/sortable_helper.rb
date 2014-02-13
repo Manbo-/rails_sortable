@@ -1,5 +1,12 @@
 module SortableHelper
-  def sortable(object)
+  def sortable(models)
+    @sortable = models.inject({}) do |sortable, object|
+      sortable.merge(object => "#{object.class}_#{object.id}")
+    end
+    models
+  end
+
+  def sortable_id(object)
     @sortable[object]
   end
 
@@ -8,14 +15,5 @@ module SortableHelper
     models.each do |object|
       yield object, "#{object.class}_#{object.id}"
     end
-  end
-
-  private
-
-  def sortable_set(models)
-    @sortable ||= models.inject({}) do |sortable, object|
-      sortable.merge(object => "#{object.class}_#{object.id}")
-    end
-    models
   end
 end
