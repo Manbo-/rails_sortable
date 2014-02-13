@@ -5,14 +5,16 @@ class SortableController < ApplicationController
   def reorder
     klass, ids = parse_params
     models = klass.order(:sort).to_a
-    ids.each_with_index do |id, new_sort|
-      model = models.find {|m| m.id == id }
-      model.update_sort!(new_sort) if model.sort != new_sort
+    ActiveRecord::Base.transaction do
+      ids.each_with_index do |id, new_sort|
+        model = models.find {|m| m.id == id }
+        model.update_sort!(new_sort) if model.sort != new_sort
+      end
     end
     render nothing: true
   end
 
-private
+  private
 
   def parse_params
     klass_name = params.keys.first
