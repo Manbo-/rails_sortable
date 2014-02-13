@@ -1,49 +1,54 @@
 module RailsSortable
-
-  #
-  # Include this module to your ActiveRecord model.
-  # And you must call `set_sortable` method for using sortable model.
-  #
-  # ex)
-  # class SampleModel < ActiveRecord::Base
-  #   include RailsSortable::Model
-  #   set_sortable :sort, silence_recording_timestamps: true
-  # end
-  #
   module Model
-    def self.included(base)
-      base.class_eval do
-        before_create :maximize_sort
+    extend ActiveSupport::Concern
+
+    #
+    # Include this module to your ActiveRecord model.
+    # And you must call `set_sortable` method for using sortable model.
+    #
+    # ex)
+    # class SampleModel < ActiveRecord::Base
+    #   include RailsSortable::Model
+    #   set_sortable :sort, silence_recording_timestamps: true
+    # end
+    #
+    included do
+      def update_sort!(new_value)
+        write_attribute sort_attribute, new_value
+        if sortable_options[:silence_recording_timestamps]
+          silence_recording_timestamps { save! }
+        else
+          save!
+        end
       end
-      base.extend ClassMethods
-    end
 
-    def update_sort!(new_value)
-      write_attribute sort_attribute, new_value
-      if sortable_options[:silence_recording_timestamps]
-        silence_recording_timestamps { save! }
-      else
-        save!
+      def maximize
+        return if read_attribute(sort_attribute)
+        write_attribute sort_attribute, max_sort
       end
-    end
 
-  protected
+      def minimize
+        return if read_attribute(sort_attribute)
+        write_attribute sort_attribute, min_sort
+      end
 
-    def maximize_sort
-      return if read_attribute(sort_attribute)
-      write_attribute sort_attribute, max_sort
-    end
+      protected
 
-    def silence_recording_timestamps
-      raise ArgumentError unless block_given?
-      original_record_timestamps = self.class.record_timestamps
-      self.class.record_timestamps = false
-      yield
-      self.class.record_timestamps = original_record_timestamps
-    end
+      def silence_recording_timestamps
+        raise ArgumentError unless block_given?
+        original_record_timestamps = self.class.record_timestamps
+        self.class.record_timestamps = false
+        yield
+        self.class.record_timestamps = original_record_timestamps
+      end
 
-    def max_sort
-      (self.class.maximum(sort_attribute) || 0) + 1
+      def max_sort
+        (self.class.maximum(sort_attribute) || 0) + 1
+      end
+
+      def min_sort
+        (self.class.minimum(sort_attribute) || 0) - 1
+      end
     end
 
     module ClassMethods
@@ -58,5 +63,4 @@ module RailsSortable
       end
     end
   end
-
 end
