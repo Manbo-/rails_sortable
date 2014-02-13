@@ -46,6 +46,9 @@ class Item < ActiveRecord::Base
   set_sortable :sort  # indicate sort column
   # If you don't want timestamps to be updated with sorting, use following option. 
   # set_sortable :sort, silence_recording_timestamps: true
+
+  # set sort column value to new record 
+  before_create :maximize # or :minimize
 end
 ```
 
@@ -64,6 +67,19 @@ and its listing view (typically - index.html.erb) is
     <% end %>
   </tbody>
 </table>
+...
+```
+
+Or
+
+index.html.erb
+```erb
+render partial: entry, collection: sortable(@entries)
+```
+
+_entry.html.erb
+```erb
+<tr id="<%= sortable_id(entry) %>">
 ...
 ```
 
