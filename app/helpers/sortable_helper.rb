@@ -1,13 +1,14 @@
 module SortableHelper
-  def sortable(models)
+  def sortable(models, call = nil)
     @sortable = models.inject({}) do |sortable, object|
-      sortable.merge(object => "#{object.class}_#{object.id}")
+      key = call ? object.send(call) : object
+      sortable.merge(key => "#{object.class}_#{object.id}")
     end
-    models
+    call ? models.map(&call) : models
   end
 
   def sortable_id(object)
-    @sortable[object]
+    @sortable && @sortable[object]
   end
 
   def sortable_fetch(models)
