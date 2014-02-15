@@ -45,10 +45,10 @@ class Item < ActiveRecord::Base
   include RailsSortable::Model
   set_sortable :sort  # indicate sort column
   # If you don't want timestamps to be updated with sorting, use following option. 
-  # set_sortable :sort, silence_recording_timestamps: true
+  # set_sortable :sort, silence_recording_timestamps: true, :new => :maximize
 
-  # set sort column value to new record 
-  before_create :maximize # or :minimize
+  # 
+  # set_sortable :sort, :new => :maximize
 end
 ```
 
