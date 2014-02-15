@@ -9,7 +9,7 @@ module RailsSortable
     # ex)
     # class SampleModel < ActiveRecord::Base
     #   include RailsSortable::Model
-    #   set_sortable :sort, silence_recording_timestamps: true
+    #   set_sortable :sort, silence_recording_timestamps: true, :new => :minimize
     # end
     #
     included do
@@ -59,6 +59,7 @@ module RailsSortable
       #
       def set_sortable(attribute, options = {})
         define_method("sort_attribute") { attribute }
+        before_create options[:new] || :maximize
         define_method("sortable_options") { options }
       end
     end

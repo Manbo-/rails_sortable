@@ -5,7 +5,7 @@ describe SortableHelper do
     alias_method :id, :object_id
 
     def relation
-      Relation.new
+      @relation ||= Relation.new
     end
   end
 
@@ -48,11 +48,11 @@ describe SortableHelper do
   end
 
   describe "#sortable_id" do
-    context "when sortable called one arguments" do
-      let(:dummy) do
-        ARDummy.new        
-      end
+    let(:dummy) do
+      ARDummy.new        
+    end
 
+    context "with one argument" do
       before do
         sortable([dummy])
       end
@@ -62,13 +62,18 @@ describe SortableHelper do
       end
     end
 
-    context "when sortable called two arguments" do
-      before do
-        @relations = sortable([ARDummy.new], :relation)
+    context "with two arguments" do
+      let(:relation) do
+        dummy.relation
       end
 
       it do
-        expect(sortable_id(@relations.first)).to eq "Relation_#{@relations.first.id}"
+        expect(sortable([dummy], :relation)).to be_all{ |relation| relation.kind_of? Relation }
+      end
+
+      it do
+        sortable([dummy], :relation)
+        expect(sortable_id(relation)).to eq "Relation_#{relation.id}"
       end
     end
   end

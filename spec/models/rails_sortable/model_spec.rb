@@ -3,17 +3,45 @@ require 'spec_helper'
 describe RailsSortable::Model do
 
   describe "before_create" do
-    context "when sort is nil" do
-      it "should be automatically set maximum sort value" do
-        Item.create! sort: 1000
-        new_item = Item.create!
-        expect(new_item.sort).to eql 1001
+    context "when default" do
+      context "and sort is nil" do
+        it "should be automatically set maximum sort value" do
+          Item.create! sort: 1000
+          new_item = Item.create!
+          expect(new_item.sort).to eql 1001
+        end
+      end
+      context "and sort has value" do
+        it "should not set sort value" do
+          item = Item.create! sort: 1000
+          expect(item.sort).to eql 1000
+        end
       end
     end
-    context "when sort has value" do
-      it "should not set sort value" do
-        item = Item.create! sort: 1000
-        expect(item.sort).to eql 1000
+
+    context "when specify new" do
+      before do
+        # default Item calls this
+        Item.any_instance.stub(:maximize).and_return(true)
+
+        Item.class_eval do
+          set_sortable :sort, :new => :minimize
+        end
+      end
+
+      context "and sort is nil" do
+        it "should be automatically set minimum sort value" do
+          Item.create! sort: 1000
+          new_item = Item.create!
+          expect(new_item.sort).to eql 999
+        end
+      end
+
+      context "and sort has value" do
+        it "should not set sort value" do
+          item = Item.create! sort: 1000
+          expect(item.sort).to eql 1000
+        end
       end
     end
   end
