@@ -1,7 +1,7 @@
 module SortableHelper
   def sortable(models, call = nil)
     @sortable = models.inject({}) do |sortable, object|
-      key = object.send(call) if call
+      key = call ? object.send(call) : object
       sortable.merge(key => "#{object.class}_#{object.id}")
     end
     call ? models.map(&call) : models
